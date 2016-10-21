@@ -1,11 +1,6 @@
 package com.example.student.wonder_scale;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Set;
 
 import static java.lang.Double.parseDouble;
 
@@ -48,7 +42,6 @@ public class Home_Screen extends AppCompatActivity {
     private ArrayList<Integer> calList = new ArrayList<>();
     ArrayList<Entry> list = new ArrayList<>();
     ArrayList<String> labels = new ArrayList<>();
-    ArrayList<String> mArrayAdapter = new ArrayList<>();
     LineDataSet dataSet = new LineDataSet(list,"# of Calories");
 
 
@@ -76,47 +69,8 @@ public class Home_Screen extends AppCompatActivity {
         Lchart.setData(data);
         Lchart.setDescription("Calorie Chart");
 
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter == null){
-            //Device doesn't support bluetooth
-            Toast.makeText(getApplicationContext(), "Device doesn't support bluetooth", Toast.LENGTH_SHORT).show();
-        }
-        assert mBluetoothAdapter != null;
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        //if there are paired devices
 
-        if(pairedDevices.size() > 0){
-            //loop through paired devices
-            for(BluetoothDevice device : pairedDevices){
-                //add the name and address to an array adapter to show in a ListView
-                mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-            }
-        }
-
-        // Create a BroadcastReceiver for ACTION_FOUND
-        final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                // When discovery finds a device
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    // Get the BluetoothDevice object from the Intent
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    // Add the name and address to an array adapter to show in a ListView
-                    mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                }
-            }
-        };
-        // Register the BroadcastReceiver
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
-        startActivity(discoverableIntent);
     }
-
-    //BLuetooth server accept incoming connections
-
 
 
 

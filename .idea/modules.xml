@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Wonder_Scale.iml" filepath="$PROJECT_DIR$/Wonder_Scale.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WonderScale.iml" filepath="$PROJECT_DIR$/WonderScale.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
