@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>Home_Screen.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Home_Screen.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">package </span><span class="s1">com.example.student.wonder_scale</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.os.Environment</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.AppCompatActivity</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.AutoCompleteTextView</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">android.widget.Toast</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">import </span><span class="s1">java.io.File</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.FileNotFoundException</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.FileOutputStream</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.io.IOException</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">Home_Screen </span><span class="s0">extends </span><span class="s1">AppCompatActivity { 
+ 
+    AutoCompleteTextView foodName</span><span class="s0">;</span><span class="s1"> 
+    AutoCompleteTextView servingSize</span><span class="s0">;</span><span class="s1"> 
+    AutoCompleteTextView calories</span><span class="s0">;</span><span class="s1"> 
+    AutoCompleteTextView carbs</span><span class="s0">;</span><span class="s1"> 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) { 
+        </span><span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span><span class="s1"> 
+        setContentView(R.layout.activity_home__screen)</span><span class="s0">;</span><span class="s1"> 
+        foodName = (AutoCompleteTextView)findViewById(R.id.autoFoodName)</span><span class="s0">;</span><span class="s1"> 
+        servingSize = (AutoCompleteTextView)findViewById(R.id.autoServingSize)</span><span class="s0">;</span><span class="s1"> 
+        calories = (AutoCompleteTextView)findViewById(R.id.autoCalories)</span><span class="s0">;</span><span class="s1"> 
+        carbs = (AutoCompleteTextView)findViewById(R.id.autoCarbs)</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">saveField(View v) </span><span class="s0">throws </span><span class="s1">IOException { 
+ 
+        String Name = foodName.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+        String Size = servingSize.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+        String cal = calories.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+        String carb = carbs.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+        String savedField = </span><span class="s2">&quot;Saved_Fields.txt&quot;</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">try </span><span class="s1">{ 
+            FileOutputStream OutputStream = openFileOutput(savedField</span><span class="s0">,</span><span class="s1">MODE_PRIVATE)</span><span class="s0">;</span><span class="s1"> 
+            OutputStream.write(Name.getBytes())</span><span class="s0">;</span><span class="s1"> 
+            OutputStream.write(Size.getBytes())</span><span class="s0">;</span><span class="s1"> 
+            OutputStream.write(cal.getBytes())</span><span class="s0">;</span><span class="s1"> 
+            OutputStream.write(carb.getBytes())</span><span class="s0">;</span><span class="s1"> 
+            OutputStream.close()</span><span class="s0">;</span><span class="s1"> 
+            Toast.makeText(getApplicationContext()</span><span class="s0">,</span><span class="s2">&quot;All Fields saved&quot;</span><span class="s0">,</span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span><span class="s1"> 
+        } </span><span class="s0">catch </span><span class="s1">(FileNotFoundException e) { 
+            e.printStackTrace()</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+    </span><span class="s0">public void </span><span class="s1">writeExternalStorage(View v) </span><span class="s0">throws </span><span class="s1">IOException { 
+ 
+        String state</span><span class="s0">;</span><span class="s1"> 
+        state = Environment.getExternalStorageState()</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s0">if</span><span class="s1">(Environment.MEDIA_MOUNTED.equals(state)){ 
+ 
+            File Root = Environment.getExternalStorageDirectory()</span><span class="s0">;</span><span class="s1"> 
+            File Dir = </span><span class="s0">new </span><span class="s1">File(Root.getAbsoluteFile()+</span><span class="s2">&quot;/WonderScale&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(!Dir.exists()) { 
+                Dir.mkdir()</span><span class="s0">;</span><span class="s1"> 
+            } 
+            File file = </span><span class="s0">new </span><span class="s1">File(Dir</span><span class="s0">,</span><span class="s2">&quot;WonderScale.txt&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            String Name = foodName.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+            String Size = servingSize.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+            String cal = calories.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+            String carb = carbs.getText().toString()</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">try </span><span class="s1">{ 
+                FileOutputStream OutputStream = </span><span class="s0">new </span><span class="s1">FileOutputStream(</span><span class="s0">new </span><span class="s1">File(file</span><span class="s0">,true</span><span class="s1">))</span><span class="s0">;</span><span class="s1"> 
+                OutputStream.write(Name.getBytes())</span><span class="s0">;</span><span class="s1"> 
+                OutputStream.write(Size.getBytes())</span><span class="s0">;</span><span class="s1"> 
+                OutputStream.write(cal.getBytes())</span><span class="s0">;</span><span class="s1"> 
+                OutputStream.write(carb.getBytes())</span><span class="s0">;</span><span class="s1"> 
+                OutputStream.close()</span><span class="s0">;</span><span class="s1"> 
+                foodName.setText(</span><span class="s2">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                servingSize.setText(</span><span class="s2">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                calories.setText(</span><span class="s2">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                carbs.setText(</span><span class="s2">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                Toast.makeText(getApplicationContext()</span><span class="s0">, </span><span class="s2">&quot;All Fields saved&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span><span class="s1"> 
+            } </span><span class="s0">catch </span><span class="s1">(FileNotFoundException e) { 
+                e.printStackTrace()</span><span class="s0">;</span><span class="s1"> 
+            } 
+ 
+ 
+        } 
+        </span><span class="s0">else</span><span class="s1">{ 
+            Toast.makeText(getApplicationContext()</span><span class="s0">, </span><span class="s2">&quot;SD card not found&quot;</span><span class="s0">, </span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+ 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">graph(View v){ 
+ 
+    } 
+ 
+} 
+</span></pre>
+</body>
+</html>

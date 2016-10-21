@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Wonder_Scale</string>
+    <string name="Weight">Weight</string>
+    <string name="Grams">Grams</string>
+    <string name="Ounces">Ounces</string>
+    <string name="_54">54</string>
+    <string name="Food_Name">Food Name</string>
+    <string name="Serving_Size">Serving Size</string>
+    <string name="Calories">Calories</string>
+    <string name="Carbohydrates">Carbohydrates</string>
+    <string name="Save">Save</string>
+    <string name="Reset_Calorie_Count">Reset Calorie Count</string>
+</resources>
