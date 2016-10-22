@@ -1,19 +1,26 @@
 package com.example.student.wonder_scale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.Utils;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -23,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 
 import static java.lang.Double.parseDouble;
 
@@ -43,8 +51,12 @@ public class Home_Screen extends AppCompatActivity {
     ArrayList<Entry> list = new ArrayList<>();
     ArrayList<String> labels = new ArrayList<>();
     LineDataSet dataSet = new LineDataSet(list,"# of Calories");
-
-
+    //Bluetooth
+    TextView ConnectionStatus;
+    ListView pairedListView;
+    private BluetoothAdapter mBtAdapter;
+    private ArrayAdapter<String> mPairedDevicesArrayAdapter;
+    public static String EXTRA_DEVICE_ADDRESS;//used to take the MAC address to the next activity
 
 
     @Override//used every time the app is created to set up the environment
@@ -63,6 +75,14 @@ public class Home_Screen extends AppCompatActivity {
         Ounces = (RadioButton)findViewById(R.id.ounces);
         Weight = (EditText)findViewById(R.id.calculatedWeight);
         Lchart = (LineChart)findViewById(R.id.graph);
+        //Bluetooth
+        ConnectionStatus = (TextView) findViewById(R.id.connecting);
+        ConnectionStatus.setTextSize(40);
+        //initialize array adapter for paired devices
+        mPairedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_name);
+        //find and set up the ListView for paired devices
+        pairedListView = (ListView) findViewById(R.id.devices);
+        pairedListView.setAdapter(mPairedDevicesArrayAdapter);
 
         //create a blank graph
         LineData data = new LineData(labels,dataSet);
@@ -102,7 +122,46 @@ public class Home_Screen extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //best to check BT status onResume in case something changed
+        checkBTState();
 
+        mPairedDevicesArrayAdapter.clear();// clears the array so items aren't duplicated when resuming from onPause
+
+        ConnectionStatus.setText(" "); //makes the textview blank
+
+        // Get the local Bluetooth adapter
+        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // Get a set of currently paired devices and append to pairedDevices list
+        Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
+
+        // Add previously paired devices to the array
+        if (pairedDevices.size() > 0) {
+            findViewById(R.id.Paired_Devices).setVisibility(View.VISIBLE);//make title viewable
+            for (BluetoothDevice device : pairedDevices) {
+                mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+            }
+        } else {
+            mPairedDevicesArrayAdapter.add("no devices paired");
+        }
+
+    }
+    //method to check if the device has Bluetooth and if it is on.
+    //Prompts the user to turn it on if it is off
+    private void checkBTState()
+    {
+        // Check device has Bluetooth and that it is turned on
+        mBtAdapter=BluetoothAdapter.getDefaultAdapter(); // CHECK THIS OUT THAT IT WORKS!!!
+        if(mBtAdapter==null) {
+            Toast.makeText(getBaseContext(), "Device does not support Bluetooth", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            if (!mBtAdapter.isEnabled()) {
+                //Prompt user to turn on Bluetooth
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, 1);
+            }
+        }
     }
 
     @Override
@@ -230,8 +289,4 @@ public class Home_Screen extends AppCompatActivity {
         }
 
     }
-
-//bluetooth part
-
-
 }
