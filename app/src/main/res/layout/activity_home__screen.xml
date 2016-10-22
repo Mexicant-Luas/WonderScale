@@ -142,7 +142,7 @@
         android:layout_toEndOf="@+id/autoServingSize" />
 
     <TextView
-        android:text="Select BT device from paired devices: "
+        android:text="@string/Select_BT_device_from_paired_devices_"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/calTotal"
@@ -158,7 +158,9 @@
         android:layout_alignParentStart="true"
         android:id="@+id/connecting"
         android:layout_toStartOf="@+id/graph"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textSize="8sp"
+        android:fontFamily="sans-serif-condensed" />
 
     <ListView
         android:layout_width="match_parent"
@@ -174,17 +176,16 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/calculatedWeight"
-        android:contextClickable="false"
-        android:enabled="false"
         android:visibility="visible"
         android:focusable="true"
         android:text="@string/_54"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/foodName" />
+        android:layout_above="@+id/foodName"
+        android:enabled="true" />
 
     <Button
-        android:text="Get Weight"
+        android:text="@string/Get_Weight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/getWeight"

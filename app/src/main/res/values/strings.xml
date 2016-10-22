@@ -10,4 +10,8 @@
     <string name="Carbohydrates">Carbohydrates</string>
     <string name="Save">Save</string>
     <string name="Reset_Calorie_Count">Reset Calorie Count</string>
+    <string name="Select_BT_device_from_paired_devices_">Select BT device from paired devices: </string>
+    <string name="Get_Weight">Get Weight</string>
+    <string name="Connected">Connected</string>
+    <string name="Error">Error</string>
 </resources>

@@ -1,13 +1,21 @@
 package com.example.student.wonder_scale;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
+
+import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -20,9 +28,10 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.Utils;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -31,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 import static java.lang.Double.parseDouble;
 
@@ -56,7 +66,20 @@ public class Home_Screen extends AppCompatActivity {
     ListView pairedListView;
     private BluetoothAdapter mBtAdapter;
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
-    public static String EXTRA_DEVICE_ADDRESS;//used to take the MAC address to the next activity
+    //public static String EXTRA_DEVICE_ADDRESS;//used to take the MAC address to the next activity
+    //Communication bluetooth
+    Button GetWeight;
+    EditText displayWeight;
+    //private BluetoothAdapter BtAdapter;
+    private BluetoothSocket BtSocket;
+    private OutputStream outStream;
+
+    // UUID service - This is the type of Bluetooth device that the BT module is
+    // It is very likely yours will be the same, if not google UUID for your manufacturer
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    // MAC-address of Bluetooth module
+    public String newAddress;
 
 
     @Override//used every time the app is created to set up the environment
@@ -75,6 +98,12 @@ public class Home_Screen extends AppCompatActivity {
         Ounces = (RadioButton)findViewById(R.id.ounces);
         Weight = (EditText)findViewById(R.id.calculatedWeight);
         Lchart = (LineChart)findViewById(R.id.graph);
+
+        //create a blank graph
+        LineData data = new LineData(labels,dataSet);
+        Lchart.setData(data);
+        Lchart.setDescription("Calorie Chart");
+
         //Bluetooth
         ConnectionStatus = (TextView) findViewById(R.id.connecting);
         ConnectionStatus.setTextSize(40);
@@ -83,12 +112,22 @@ public class Home_Screen extends AppCompatActivity {
         //find and set up the ListView for paired devices
         pairedListView = (ListView) findViewById(R.id.devices);
         pairedListView.setAdapter(mPairedDevicesArrayAdapter);
+        pairedListView.setOnItemClickListener(mDeviceClickListener);
 
-        //create a blank graph
-        LineData data = new LineData(labels,dataSet);
-        Lchart.setData(data);
-        Lchart.setDescription("Calorie Chart");
+        addKeyListener();
+        //Initialize button
+        GetWeight = (Button) findViewById(R.id.getWeight);
 
+        //getting the bluetooth adapter value and calling checkBTstate function
+        //BtAdapter = BluetoothAdapter.getDefaultAdapter();
+        //checkBTState();
+
+        GetWeight.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                sendData("R");
+                Toast.makeText(getBaseContext(), "Getting Weight", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -116,6 +155,16 @@ public class Home_Screen extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
+        //Pausing can be the end of an app if the device kills it or the user doesn't open it again
+        //close all connections so resources are not wasted
+
+        //Close BT socket to device
+        try{
+            BtSocket.close();
+        } catch (IOException e2) {
+            Toast.makeText(getBaseContext(), "ERROR - Failed to close Bluetooth socket", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -145,6 +194,8 @@ public class Home_Screen extends AppCompatActivity {
             mPairedDevicesArrayAdapter.add("no devices paired");
         }
 
+
+
     }
     //method to check if the device has Bluetooth and if it is on.
     //Prompts the user to turn it on if it is off
@@ -162,6 +213,57 @@ public class Home_Screen extends AppCompatActivity {
                 startActivityForResult(enableBtIntent, 1);
             }
         }
+       /* // Check device has Bluetooth and that it is turned on
+        if(BtAdapter==null) {
+            Toast.makeText(getBaseContext(), "ERROR - Device does not support bluetooth", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            if (!BtAdapter.isEnabled()) {
+                //Prompt user to turn on Bluetooth
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, 1);
+            }
+        }*/
+    }
+    //takes the UUID and creates a com socket
+    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+
+        return  device.createRfcommSocketToServiceRecord(MY_UUID);
+    }
+    // Method to send data
+    private void sendData(String message) {
+        byte[] msgBuffer = message.getBytes();
+
+        try {
+            //attempt to place data on the outStream to the BT device
+            outStream.write(msgBuffer);
+        } catch (IOException e) {
+            //if the sending fails this is most likely because device is no longer there
+            Toast.makeText(getBaseContext(), "ERROR - Device not found", Toast.LENGTH_SHORT).show();
+            ConnectionStatus.setText(R.string.Error);
+        }
+    }
+    public void addKeyListener() {
+
+        // get display component
+        displayWeight = (EditText) findViewById(R.id.calculatedWeight);
+
+        // add a key listener to keep track user input
+        displayWeight.setOnKeyListener(new OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                // if key down and send is pressed implement the sendData method
+                if ((keyCode == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN)) {
+                    //I have put the * in automatically so it is no longer needed when entering text
+                    sendData('*' + displayWeight.getText().toString());
+                    Toast.makeText(getBaseContext(), "Sending text", Toast.LENGTH_SHORT).show();
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
     }
 
     @Override
@@ -289,4 +391,48 @@ public class Home_Screen extends AppCompatActivity {
         }
 
     }
+    // Set up on-click listener for the listview
+    private OnItemClickListener mDeviceClickListener = new OnItemClickListener()
+    {
+        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3)
+        {
+            ConnectionStatus.setText(R.string.Connected);
+            // Get the device MAC address, which is the last 17 chars in the View
+            String info = ((TextView) v).getText().toString();
+            newAddress = info.substring(info.length() - 17);
+
+
+            //bluetooth Connection
+            BluetoothDevice device = mBtAdapter.getRemoteDevice(newAddress);
+
+            //Attempt to create a bluetooth socket for com
+            try {
+                BtSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e1) {
+                Toast.makeText(getBaseContext(), "ERROR - Could not create Bluetooth socket", Toast.LENGTH_SHORT).show();
+                ConnectionStatus.setText(R.string.Error);
+            }
+            try {
+                BtSocket.connect();
+            } catch (IOException e) {
+                try {
+                    BtSocket.close();        //If IO exception occurs attempt to close socket
+                } catch (IOException e2) {
+                    Toast.makeText(getBaseContext(), "ERROR - Could not close Bluetooth socket", Toast.LENGTH_SHORT).show();
+                    ConnectionStatus.setText(R.string.Error);
+                }
+            }
+            // Create a data stream so we can talk to the device
+            try {
+                outStream = BtSocket.getOutputStream();
+            } catch (IOException e) {
+                Toast.makeText(getBaseContext(), "ERROR - Could not create bluetooth outStream", Toast.LENGTH_SHORT).show();
+                ConnectionStatus.setText(R.string.Error);
+            }
+            //When activity is resumed, attempt to send a piece of junk data ('x') so that it will fail if not connected
+            // i.e don't wait for a user to press button to recognise connection failure
+            sendData("x");
+
+        }
+    };
 }
